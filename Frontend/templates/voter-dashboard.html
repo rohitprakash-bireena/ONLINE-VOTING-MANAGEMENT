@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting Panel - SecureVote</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='voter.css') }}">
+</head>
+<body class="dashboard-page" data-page="voter-dashboard" data-election-status="{{ election_status }}" data-show-login-alert="{{ 'true' if show_login_alert else 'false' }}">
+
+    <div class="dashboard-container">
+        
+        <div class="welcome-header">
+            <div class="welcome-text">
+                <h2 class="welcome-title">E-Voting Portal</h2>
+                <p class="welcome-subtitle">Welcome, <strong>{{ voter_name }}</strong></p>
+            </div>
+            <a href="/voter-logout" class="logout-btn">Log Out</a>
+        </div>
+
+        <div class="login-card dashboard-card">
+            
+            {% if has_voted %}
+                <div class="voted-msg voted-success">
+                    <div class="status-emoji">✅</div>
+                    <h2>Vote Successfully Cast!</h2>
+                    <p class="status-text">Thank you for participating in the digital democracy. Your vote has been securely recorded.</p>
+                </div>
+
+            {% elif election_status != 'started' %}
+                <div class="voted-msg voted-pending">
+                    <div class="status-emoji">⏳</div>
+                    <h2>Election Not Started Yet</h2>
+                    <p class="status-text">Admin ne abhi election start nahi kiya hai. Election start hote hi aap vote de paayenge.</p>
+                </div>
+            
+            {% else %}
+                <h3 class="candidate-list-heading">Select Your Candidate</h3>
+                
+                <form id="castVoteForm" action="/cast-vote" method="POST">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    
+    {% for candidate in candidates %}
+    <label class="candidate-card">
+        <div class="candidate-info">
+            <div class="candidate-title-row">
+                {% if candidate.logo_path %}
+                <img src="{{ url_for('static', filename=candidate.logo_path) }}" alt="{{ candidate.party }} logo" class="candidate-logo">
+                {% endif %}
+                <h4>{{ candidate.name }}</h4>
+            </div>
+            <p>Party: {{ candidate.party }}</p>
+        </div>
+        <div class="candidate-radio-wrapper">
+            <input type="radio" name="candidate_id" value="{{ candidate.id }}" required>
+        </div>
+    </label>
+    {% else %}
+        <p class="no-candidates-msg">No candidates are currently registered for the election.</p>
+    {% endfor %}
+
+    <div class="form-submit-wrapper">
+        <button type="submit" class="btn btn-blue btn-lg">
+            Cast My Vote
+        </button>
+    </div>
+</form>
+            {% endif %}
+
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script src="{{ url_for('static', filename='voter.js') }}"></script>
+
+</body>
+</html>

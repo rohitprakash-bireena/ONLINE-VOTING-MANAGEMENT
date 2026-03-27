@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureVote - Online Voting System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-top">
+            <div class="logo">🗳️ SecureVote</div>
+            <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+
+        <div class="nav-links" id="navLinks">
+            <a href="#about">About</a>
+            <a href="#features">Features</a>
+            
+            <div class="dropdown">
+                <button class="dropbtn" type="button">Login / Portal ▼</button>
+                <div class="dropdown-content">
+                    <a href="/voter-login">👤 Voter Login</a>
+                    <a href="/admin-login">⚙️ Admin Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-section">
+        <div class="hero-content">
+            <h1>The Future of Voting is Here</h1>
+            <p>Empowering citizens with a secure, transparent, and easy-to-use digital voting platform. Your voice matters, make it count from anywhere.</p>
+            <a href="#features" class="btn btn-outline">Learn More</a>
+        </div>
+    </header>
+
+    <section id="features" class="info-section bg-light">
+        <h2 class="section-title">System Features</h2>
+        <div class="card-container">
+            <div class="info-card">
+                <h3>🔒 End-to-End Security</h3>
+                <p>Advanced hashing algorithms ensure your vote remains anonymous and tamper-proof.</p>
+            </div>
+            <div class="info-card">
+                <h3>⚡ Real-Time Counting</h3>
+                <p>Live, automated vote tallying eliminates human error and provides instant results.</p>
+            </div>
+            <div class="info-card">
+                <h3>📱 Accessibility</h3>
+                <p>Cast your vote from any device, anywhere, without standing in long queues.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="info-section">
+        <h2 class="section-title">Why Online Voting?</h2>
+        <div class="benefits-content">
+            <ul class="benefits-list">
+                <li><strong>Higher Voter Turnout:</strong> Convenience leads to more people participating in the democratic process.</li>
+                <li><strong>Cost Effective:</strong> Reduces the massive costs associated with paper ballots and physical polling booths.</li>
+                <li><strong>Eco-Friendly:</strong> A completely paperless process, saving trees and reducing carbon footprint.</li>
+                <li><strong>Fast & Accurate:</strong> No more manual counting errors or invalid votes.</li>
+            </ul>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 SecureVote Management System. Developed for academic purposes.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

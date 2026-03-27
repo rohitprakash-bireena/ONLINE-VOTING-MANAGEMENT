@@ -1,0 +1,6 @@
+Backend/.env
+Backend/venv/
+Backend/__pycache__/
+*.zip
+PROJECT_SYSTEM_OVERVIEW*
+voting_db.sql

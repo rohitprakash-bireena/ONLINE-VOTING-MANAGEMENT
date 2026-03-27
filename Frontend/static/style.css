@@ -1,0 +1,786 @@
+/* ==========================================
+   1. Basic Reset & Font Setup
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: #ffffff;
+    color: #333;
+}
+
+/* ==========================================
+   2. Common Base Components (Buttons & Cards)
+   ========================================== */
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1em;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.btn-dark {
+    background-color: #2d3748;
+    color: white;
+}
+
+.btn-dark:hover {
+    background-color: #1a202c;
+    box-shadow: 0 4px 12px rgba(45, 55, 72, 0.3);
+}
+
+.btn-outline {
+    display: inline-block;
+    padding: 12px 30px;
+    border: 2px solid #3182ce;
+    color: #3182ce;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-outline:hover {
+    background-color: #3182ce;
+    color: white;
+}
+
+/* Base Card */
+.card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.card-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* ==========================================
+   3. Homepage Layout (index.html)
+   ========================================== */
+.navbar {
+    background-color: #1a365d;
+    padding: 15px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.logo {
+    color: white;
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+.nav-top {
+    width: auto;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-toggle {
+    display: none;
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    padding: 9px 8px;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: #ffffff;
+    margin: 5px 0;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-toggle.active span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-toggle.active span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-left: auto;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: 400;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #90cdf4;
+}
+
+/* Dropdown */
+.dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+.dropbtn {
+    background-color: #3182ce;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.dropdown-content {
+    display: block;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background-color: #ffffff;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+}
+.dropdown-content a {
+    color: #333; padding: 12px 16px; text-decoration: none;
+    display: block; border-bottom: 1px solid #f1f1f1;
+}
+.dropdown-content a:last-child { border-bottom: none; }
+.dropdown-content a:hover { background-color: #f1f5f9; color: #3182ce; }
+.dropdown:hover .dropdown-content,
+.dropdown:focus-within .dropdown-content {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.dropdown:hover .dropbtn { background-color: #2b6cb0; }
+
+/* Hero & Info Sections */
+.hero-section {
+    background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+    padding: 100px 20px; text-align: center;
+}
+.hero-content { max-width: 800px; margin: 0 auto; }
+.hero-content h1 { font-size: 3em; color: #2c5282; margin-bottom: 20px; }
+.hero-content p { font-size: 1.2em; color: #4a5568; margin-bottom: 30px; line-height: 1.6; }
+
+.info-section { padding: 60px 20px; }
+.bg-light { background-color: #f7fafc; }
+.section-title { text-align: center; font-size: 2.2em; color: #2d3748; margin-bottom: 40px; }
+
+.card-container {
+    display: flex; justify-content: center; gap: 30px;
+    max-width: 1000px; margin: 0 auto; flex-wrap: wrap;
+}
+.info-card {
+    background-color: white; padding: 30px; border-radius: 8px;
+    width: 300px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border-top: 4px solid #3182ce;
+}
+.info-card h3 { color: #2b6cb0; margin-bottom: 15px; }
+.info-card p { color: #4a5568; line-height: 1.6; }
+
+.benefits-content { max-width: 800px; margin: 0 auto; }
+.benefits-list li { margin-bottom: 15px; font-size: 1.1em; color: #4a5568; line-height: 1.6; }
+
+footer { background-color: #1a202c; color: #a0aec0; text-align: center; padding: 20px; margin-top: 40px; }
+
+/* ==========================================
+   4. Admin Login Page Styling (admin-login.html)
+   ========================================== */
+.login-body {
+    background-color: #f0f4f8;
+    margin: 0;
+    height: 100vh;
+}
+
+.login-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 20px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+}
+
+.login-card h3 { text-align: center; color: #1a365d; margin-bottom: 5px;}
+.login-subtitle {
+    text-align: center; margin-bottom: 25px; color: #4a5568; font-size: 0.95em;
+}
+
+.login-form { text-align: left; }
+.form-group { margin-bottom: 20px; }
+.form-label { display: block; font-weight: 600; font-size: 0.9em; color: #2d3748; margin-bottom: 8px; }
+.form-input {
+    width: 100%; padding: 12px 15px; border: 1px solid #cbd5e0;
+    border-radius: 6px; font-size: 1em; color: #2d3748; background-color: #f7fafc;
+    transition: all 0.3s ease;
+}
+.form-input:focus {
+    outline: none; border-color: #3182ce; background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2);
+}
+.login-form .btn { width: 100%; margin-top: 10px; }
+
+.error-message {
+    background-color: #fed7d7; color: #c53030; padding: 12px;
+    border-radius: 6px; font-size: 0.9em; font-weight: 500;
+    margin-bottom: 20px; border-left: 4px solid #e53e3e; text-align: center;
+}
+
+.back-link {
+    display: block; text-align: center; margin-top: 25px;
+    text-decoration: none; color: #3182ce; font-size: 0.95em; font-weight: 500; transition: color 0.3s;
+}
+.back-link:hover { color: #2b6cb0; text-decoration: underline; }
+
+
+/* ==========================================
+   5. Admin Dashboard Layout
+   ========================================== */
+.dashboard-body {
+    display: flex; /* Sidebar aur Main Content ko side-by-side rakhta hai */
+    min-height: 100vh;
+    background-color: #f0f4f8;
+    margin: 0;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 260px;
+    background-color: #1a365d; /* Dark Blue */
+    color: white;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    position: fixed;
+    height: 100%;
+}
+
+.sidebar-header {
+    padding: 25px 20px;
+    background-color: #152b4a; /* Slightly darker top section */
+    border-bottom: 1px solid #2a4365;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 20px 0;
+}
+
+.sidebar-menu li a {
+    display: block;
+    padding: 15px 25px;
+    color: #cbd5e0;
+    text-decoration: none;
+    font-size: 1.05em;
+    transition: 0.3s;
+}
+
+.sidebar-menu li a:hover, .sidebar-menu li a.active {
+    background-color: #2b6cb0;
+    color: white;
+    border-left: 4px solid #63b3ed;
+}
+
+.logout-btn {
+    margin-top: 20px;
+    color: #fc8181 !important;
+}
+.logout-btn:hover {
+    background-color: #742a2a !important;
+    border-left-color: #fc8181 !important;
+}
+
+/* Main Content Styling */
+.main-content {
+    flex: 1;
+    margin-left: 260px; /* Leave space for the fixed sidebar */
+    padding: 40px;
+}
+
+.dashboard-header {
+    margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+    font-size: 2.2em;
+    color: #1a202c;
+}
+
+.dashboard-header p {
+    color: #718096;
+}
+
+/* Grid for forms and tables */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* Form takes 1 part, Table takes 2 parts */
+    gap: 30px;
+}
+
+.dashboard-card {
+    padding: 30px;
+}
+
+.dashboard-card h3 {
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 10px;
+    color: #2d3748;
+}
+
+/* Table Styling (Viva Highlight) */
+.table-container {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse; /* Removes gap between borders */
+}
+
+.data-table th, .data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.data-table th {
+    background-color: #f7fafc;
+    color: #4a5568;
+    font-weight: 600;
+}
+
+.data-table tr:hover {
+    background-color: #f7fafc; /* Highlight row on hover */
+}
+
+.vote-badge {
+    background-color: #38a169;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+/* ==========================================
+   6. Admin Analytics & Leaderboard 
+   ========================================== */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-bottom: 35px;
+}
+
+.stat-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    border: 1px solid #edf2f7;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8em;
+}
+
+.stat-label {
+    color: #718096;
+    font-size: 0.9em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    color: #1a202c;
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+.leader-badge {
+    background-color: #feebc8;
+    color: #c05621;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.85em;
+    border: 1px solid #fbd38d;
+}
+
+/* ==========================================
+   7. Responsive Styles (Index + Common)
+   ========================================== */
+@media (max-width: 992px) {
+    .navbar {
+        padding: 14px 24px;
+    }
+
+    .hero-section {
+        padding: 80px 18px;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5em;
+    }
+
+    .hero-content p {
+        font-size: 1.1em;
+    }
+
+    .section-title {
+        font-size: 2em;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 12px 16px;
+    }
+
+    .nav-top {
+        width: 100%;
+    }
+
+    .nav-toggle {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        justify-content: flex-start;
+        background-color: #21446f;
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-links a {
+        display: block;
+        padding: 8px 4px;
+    }
+
+    .dropdown {
+        width: 100%;
+    }
+
+    .dropbtn {
+        width: 100%;
+        text-align: left;
+    }
+
+    .dropdown-content {
+        position: static;
+        width: 100%;
+        min-width: 0;
+        margin-top: 6px;
+        display: none;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: 0px 2px 8px rgba(0,0,0,0.12);
+    }
+
+    .dropdown.open .dropdown-content {
+        display: block;
+    }
+
+    .dropdown.open .dropbtn {
+        background-color: #2b6cb0;
+    }
+
+    .hero-section {
+        padding: 64px 16px;
+    }
+
+    .hero-content h1 {
+        font-size: 2.1em;
+        line-height: 1.25;
+    }
+
+    .hero-content p {
+        font-size: 1em;
+    }
+
+    .info-section {
+        padding: 46px 16px;
+    }
+
+    .section-title {
+        font-size: 1.8em;
+        margin-bottom: 28px;
+    }
+
+    .card-container {
+        gap: 16px;
+    }
+
+    .info-card {
+        width: 100%;
+        max-width: 520px;
+        padding: 24px;
+    }
+
+    .benefits-list {
+        padding-left: 20px;
+    }
+
+    .benefits-list li {
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        font-size: 1.25em;
+    }
+
+    .dropbtn {
+        font-size: 0.95em;
+        padding: 10px 14px;
+    }
+
+    .dropdown-content a {
+        padding: 11px 14px;
+    }
+
+    .hero-content h1 {
+        font-size: 1.75em;
+    }
+
+    .hero-content p {
+        font-size: 0.95em;
+    }
+
+    .btn-outline {
+        width: 100%;
+        max-width: 260px;
+    }
+
+    .section-title {
+        font-size: 1.55em;
+    }
+
+    footer {
+        margin-top: 28px;
+        padding: 16px;
+        font-size: 0.9em;
+    }
+}
+
+/* ==========================================
+   8. Responsive Styles (Admin Pages)
+   ========================================== */
+@media (max-width: 1200px) {
+    .analytics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 992px) {
+    .dashboard-body {
+        display: block;
+    }
+
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        box-shadow: none;
+    }
+
+    .sidebar-header {
+        padding: 16px 18px;
+    }
+
+    .sidebar-menu {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px 16px;
+    }
+
+    .sidebar-menu li {
+        flex: 1 1 190px;
+    }
+
+    .sidebar-menu li a {
+        border-left: none;
+        border-radius: 8px;
+        padding: 10px 14px;
+    }
+
+    .logout-btn {
+        margin-top: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 24px 18px;
+    }
+
+    .dashboard-header {
+        display: grid !important;
+        grid-template-columns: 1fr;
+        align-items: start !important;
+        gap: 14px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.9em;
+    }
+
+    .dashboard-card {
+        padding: 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .analytics-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .stat-card {
+        padding: 18px;
+        gap: 14px;
+    }
+
+    .stat-value {
+        font-size: 1.5em;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.6em;
+    }
+
+    .dashboard-card {
+        padding: 18px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 10px;
+        font-size: 0.92em;
+    }
+
+    .login-body {
+        min-height: 100vh;
+        height: auto;
+        padding: 12px 0;
+    }
+
+    .login-wrapper {
+        min-height: 100vh;
+        height: auto;
+        align-items: center;
+        padding: 16px;
+    }
+
+    .login-card {
+        padding: 28px 22px;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 520px) {
+    .main-content {
+        padding: 16px 12px;
+    }
+
+    .sidebar-menu {
+        flex-direction: column;
+    }
+
+    .sidebar-menu li {
+        flex: 1 1 auto;
+    }
+
+    .dashboard-card {
+        padding: 16px;
+    }
+
+    .dashboard-header p {
+        font-size: 0.95em;
+    }
+
+    .login-card {
+        padding: 24px 18px;
+    }
+}

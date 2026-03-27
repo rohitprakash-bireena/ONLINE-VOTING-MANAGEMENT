@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Voters - SecureVote</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dashboard-body">
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>⚙️ Admin Panel</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/admin-dashboard">Dashboard Home</a></li>
+            <li><a href="/manage-voters" class="active">👥 Manage Voters</a></li>
+            <li><a href="/admin-logout" class="logout-btn">Log Out</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="dashboard-header">
+            <h1>Voter Management</h1>
+            <p>View registered voters and remove fake/duplicate entries.</p>
+        </div>
+
+        <div class="card dashboard-card">
+            <h3>All Registered Voters</h3>
+            <div class="table-container" style="margin-top: 20px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Voter Name</th>
+                            <th>Voter ID</th>
+                            <th>Voting Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for voter in voters %}
+                        <tr>
+                            <td><strong>{{ voter.name }}</strong></td>
+                            <td>{{ voter.voter_id }}</td>
+                            <td>
+                                {% if voter.has_voted %}
+                                    <span style="color: #38a169; font-weight: bold;">✅ Voted</span>
+                                {% else %}
+                                    <span style="color: #718096;">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form action="/delete-voter/{{ voter.id }}" method="POST" class="delete-voter-form" style="display:inline;">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn" style="background-color: #fed7d7; color: #c53030; padding: 6px 12px; font-size: 0.85em;">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #718096;">No voters registered yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <script>
+            Swal.fire({
+                icon: '{{ "success" if category == "success" else ("error" if category == "error" else ("warning" if category == "warning" else "info")) }}',
+                title: '{{ "Success" if category == "success" else ("Error" if category == "error" else ("Warning" if category == "warning" else "Notice")) }}',
+                text: '{{ message }}',
+                confirmButtonColor: '{{ "#38a169" if category == "success" else ("#e53e3e" if category == "error" else "#3182ce") }}'
+            });
+        </script>
+        {% endfor %}
+    {% endwith %}
+    <script src="{{ url_for('static', filename='admin.js') }}"></script>
+</body>
+</html>

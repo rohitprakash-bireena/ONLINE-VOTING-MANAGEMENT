@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SecureVote</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dashboard-body">
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>⚙️ Admin Panel</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/admin-dashboard" class="active">Dashboard Home</a></li>
+            <li><a href="/manage-voters">👥 Manage Voters</a></li>
+            <li><a href="/admin-logout" class="logout-btn">Log Out</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        
+        <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
+           <div> <h1>Welcome, {{ username }}!</h1>
+            <p>Live Election Analytics and Management.</p>
+           </div>
+
+           <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+                <p style="margin-bottom: 5px; font-weight: 600; font-size: 0.9em; color: #4a5568;">Election Status</p>
+                
+                {% if election_status == 'stopped' %}
+                <form action="/toggle-election" method="POST" style="display:inline;">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="status" value="started">
+                    <button type="submit" class="btn" style="background-color: #38a169; color: white;">▶ Start Election</button>
+                </form>
+                <span style="margin-left: 10px; color: #e53e3e; font-weight: bold;">🔴 Stopped</span>
+                
+                {% else %}
+                <form action="/toggle-election" method="POST" style="display:inline;">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="status" value="stopped">
+                    <button type="submit" class="btn" style="background-color: #e53e3e; color: white;">⏹ Stop Election</button>
+                </form>
+                <span style="margin-left: 10px; color: #38a169; font-weight: bold;">🟢 Running</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="analytics-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #ebf8ff; color: #3182ce;">👥</div>
+                <div class="stat-info">
+                    <p class="stat-label">Total Registered Voters</p>
+                    <h3 class="stat-value">{{ total_voters }}</h3>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #f0fdf4; color: #38a169;">🗳️</div>
+                <div class="stat-info">
+                    <p class="stat-label">Total Votes Cast</p>
+                    <h3 class="stat-value">{{ total_votes }}</h3>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #faf5ff; color: #805ad5;">📊</div>
+                <div class="stat-info">
+                    <p class="stat-label">Voter Turnout</p>
+                    <h3 class="stat-value">{{ turnout }}%</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card dashboard-card">
+                <h3>Add New Candidate</h3>
+                <form id="addCandidateForm" action="/add-candidate" method="POST" enctype="multipart/form-data" style="margin-top: 20px;">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-group">
+                        <label class="form-label">Candidate Name</label>
+                        <input type="text" id="candidateName" name="candidate_name" class="form-input" placeholder="E.g. Rahul Sharma" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Party / Symbol Name</label>
+                        <input type="text" id="candidateParty" name="candidate_party" class="form-input" placeholder="E.g. Democratic Party" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Party Logo (Optional)</label>
+                        <input type="file" name="candidate_logo" class="form-input" accept=".png,.jpg,.jpeg,.webp,.svg">
+                    </div>
+                    <button type="submit" class="btn btn-blue" style="width: 100%;">Add Candidate</button>
+                </form>
+            </div>
+
+            <div class="card dashboard-card">
+                <h3>Live Leaderboard</h3>
+                <div class="table-container" style="margin-top: 20px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Candidate Name</th>
+                                <th>Party</th>
+                                <th>Votes</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for candidate in candidates %}
+                            <tr>
+                                <td><strong>{{ candidate.name }}</strong></td>
+                                <td>{{ candidate.party }}</td>
+                                <td><span class="vote-badge">{{ candidate.votes }}</span></td>
+                                <td>
+                                    {% if loop.index == 1 and candidate.votes > 0 %}
+                                        <span class="leader-badge">🏆 Leading</span>
+                                    {% elif candidate.votes == 0 %}
+                                        <span style="color: #a0aec0; font-size: 0.9em;">No votes yet</span>
+                                    {% else %}
+                                        <span style="color: #718096; font-size: 0.9em;">Active</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form action="/delete-candidate/{{ candidate.id }}" method="POST" class="delete-candidate-form" style="display:inline;">
+                                        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn" style="background-color: #fed7d7; color: #c53030; padding: 6px 12px; font-size: 0.85em;">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: #718096;">No candidates registered yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <script>
+                Swal.fire({
+                    icon: '{{ "success" if category == "success" else ("error" if category == "error" else ("warning" if category == "warning" else "info")) }}',
+                    title: '{{ "Success" if category == "success" else ("Error" if category == "error" else ("Warning" if category == "warning" else "Notice")) }}',
+                    text: '{{ message }}',
+                    confirmButtonColor: '{{ "#38a169" if category == "success" else ("#e53e3e" if category == "error" else "#3182ce") }}'
+                });
+            </script>
+        {% endfor %}
+    {% endwith %}
+    <script src="{{ url_for('static', filename='admin.js') }}"></script>
+</body>
+</html>

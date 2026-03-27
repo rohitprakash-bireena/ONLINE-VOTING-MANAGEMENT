@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Register - SecureVote</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="login-body">
+
+    <div class="login-wrapper">
+        <div class="card login-card">
+            <div class="card-icon">🛡️</div>
+            <h3>Admin Registration</h3>
+            <p class="login-subtitle">Create a new admin account to manage elections.</p>
+
+            <form action="/admin-register" method="POST" class="login-form">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="username" class="form-input" placeholder="Create admin username" minlength="3" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-input" placeholder="Create password" minlength="6" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" name="confirm_password" class="form-input" placeholder="Re-enter password" minlength="6" required>
+                </div>
+
+                <button type="submit" class="btn btn-dark">Register Admin</button>
+            </form>
+
+            <div style="margin-top: 20px; text-align: center;">
+                <a href="/admin-login" style="color: #4a5568; font-size: 0.9em;">Already registered? Login here</a>
+            </div>
+
+            <a href="/" class="back-link">← Back to Home</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% if error %}
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Registration Failed',
+            text: '{{ error }}',
+            confirmButtonColor: '#c53030'
+        });
+    </script>
+    {% endif %}
+
+</body>
+</html>
