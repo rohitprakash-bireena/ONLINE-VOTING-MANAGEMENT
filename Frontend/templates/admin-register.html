@@ -15,12 +15,17 @@
             <h3>Admin Registration</h3>
             <p class="login-subtitle">Create a new admin account to manage elections.</p>
 
-            <form action="/admin-register" method="POST" class="login-form">
+            <form id="adminRegisterForm" action="/admin-register" method="POST" class="login-form">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 
                 <div class="form-group">
                     <label class="form-label">Username</label>
                     <input type="text" name="username" class="form-input" placeholder="Create admin username" minlength="3" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mobile Number</label>
+                    <input type="tel" name="mobile_number" class="form-input" placeholder="10-digit mobile number" pattern="[0-9]{10}" minlength="10" maxlength="10" title="Enter a valid 10-digit mobile number" required>
                 </div>
 
                 <div class="form-group">
@@ -45,6 +50,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ url_for('static', filename='admin.js') }}"></script>
     {% if error %}
     <script>
         Swal.fire({

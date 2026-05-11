@@ -21,7 +21,7 @@ def _ensure_voter_contact_columns(cursor):
     cursor.execute("SHOW COLUMNS FROM voters LIKE 'mobile_number'")
     has_mobile = cursor.fetchone()
     if not has_mobile:
-        cursor.execute("ALTER TABLE voters ADD COLUMN mobile_number VARCHAR(15) NULL")
+        cursor.execute("ALTER TABLE voters ADD COLUMN mobile_number VARCHAR(15) UNIQUE NULL")
 
     cursor.execute("SHOW COLUMNS FROM voters LIKE 'email'")
     has_email = cursor.fetchone()
@@ -60,15 +60,26 @@ def voter_register():
                 cursor = conn.cursor()
                 try:
                     _ensure_voter_contact_columns(cursor)
-                    # Default has_voted FALSE rahega
-                    cursor.execute(
-                        "INSERT INTO voters (voter_id, password, name, mobile_number, email) VALUES (%s, %s, %s, %s, %s)",
-                        (voter_id, hashed_password, name, mobile_number, email)
-                    )
-                    conn.commit()
-                    cursor.close()
-                    conn.close()
-                    return redirect(url_for('voter.voter_login', registered='1'))
+                    
+                    # Check if mobile_number already exists in voters table
+                    cursor.execute("SELECT id FROM voters WHERE mobile_number = %s", (mobile_number,))
+                    if cursor.fetchone():
+                        error = "This mobile number is already registered as voter!"
+                    else:
+                        # Check if mobile_number already exists in admin table
+                        cursor.execute("SELECT id FROM admin WHERE mobile_number = %s", (mobile_number,))
+                        if cursor.fetchone():
+                            error = "This mobile number is already registered as admin!"
+                        else:
+                            # Default has_voted FALSE rahega
+                            cursor.execute(
+                                "INSERT INTO voters (voter_id, password, name, mobile_number, email) VALUES (%s, %s, %s, %s, %s)",
+                                (voter_id, hashed_password, name, mobile_number, email)
+                            )
+                            conn.commit()
+                            cursor.close()
+                            conn.close()
+                            return redirect(url_for('voter.voter_login', registered='1'))
                 except mysql.connector.IntegrityError:
                     # Agar koi same Voter ID dubara daalega toh error aayega (Kyunki DB me UNIQUE constraint hai)
                     error = "This Voter ID is already registered!"
@@ -78,6 +89,39 @@ def voter_register():
                         conn.close()
 
     return render_template('voter-register.html', error=error, success=success)
+
+# --- Check Mobile Number Availability (AJAX) ---
+@voter_bp.route('/check-voter-mobile', methods=['POST'])
+def check_voter_mobile_availability():
+    from flask import jsonify
+    mobile_number = request.form.get('mobile_number', '').strip()
+    
+    if not MOBILE_PATTERN.fullmatch(mobile_number):
+        return jsonify({'available': False, 'message': 'Invalid mobile number format'})
+    
+    conn = get_db_connection()
+    if conn:
+        cursor = conn.cursor(dictionary=True)
+        try:
+            # Ensure columns exist first
+            _ensure_voter_contact_columns(cursor)
+            
+            # Check in voters table
+            cursor.execute("SELECT id FROM voters WHERE mobile_number = %s", (mobile_number,))
+            if cursor.fetchone():
+                return jsonify({'available': False, 'message': 'Already registered as voter'})
+            
+            # Check in admin table
+            cursor.execute("SELECT id FROM admin WHERE mobile_number = %s", (mobile_number,))
+            if cursor.fetchone():
+                return jsonify({'available': False, 'message': 'Already registered as admin'})
+            
+            return jsonify({'available': True, 'message': 'Mobile number is available'})
+        finally:
+            cursor.close()
+            conn.close()
+    
+    return jsonify({'available': False, 'message': 'Database error'})
 
 # --- Voter Login Route ---
 @voter_bp.route('/voter-login', methods=['GET', 'POST'])

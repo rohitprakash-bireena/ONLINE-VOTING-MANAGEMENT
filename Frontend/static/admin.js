@@ -1,6 +1,116 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     // ==========================================
+    // 0. Admin Registration Form Validation
+    // ==========================================
+    const adminRegisterForm = document.getElementById('adminRegisterForm');
+    const MOBILE_REGEX = /^\d{10}$/;
+
+    if (adminRegisterForm) {
+        // Show error message from server if exists
+        const errorElement = document.querySelector('[data-error]');
+        if (errorElement) {
+            const serverError = (errorElement.dataset.error || '').trim();
+            if (serverError) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Registration Failed',
+                    text: serverError,
+                    confirmButtonColor: '#c53030'
+                });
+            }
+        }
+
+        adminRegisterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = adminRegisterForm.querySelector('input[name="username"]').value.trim();
+            const mobileNumber = adminRegisterForm.querySelector('input[name="mobile_number"]').value.trim();
+            const password = adminRegisterForm.querySelector('input[name="password"]').value;
+            const confirmPassword = adminRegisterForm.querySelector('input[name="confirm_password"]').value;
+
+            if (username.length < 3) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Username',
+                    text: 'Username kam se kam 3 characters ka hona chahiye.',
+                    confirmButtonColor: '#3182ce'
+                });
+                return;
+            }
+
+            if (!MOBILE_REGEX.test(mobileNumber)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Mobile Number',
+                    text: 'Mobile number 10 digits ka hona chahiye.',
+                    confirmButtonColor: '#3182ce'
+                });
+                return;
+            }
+
+            if (password.length < 6) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Weak Password',
+                    text: 'Password minimum 6 characters ka hona chahiye.',
+                    confirmButtonColor: '#3182ce'
+                });
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Password Mismatch',
+                    text: 'Password aur Confirm Password match nahi kar rahe.',
+                    confirmButtonColor: '#3182ce'
+                });
+                return;
+            }
+
+            // Check mobile number uniqueness via AJAX
+            const formData = new FormData();
+            formData.append('mobile_number', mobileNumber);
+
+            fetch('/check-mobile', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.available) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Mobile Number Exists',
+                        text: data.message,
+                        confirmButtonColor: '#c53030'
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Submitting Registration...',
+                    showConfirmButton: false,
+                    timer: 900
+                }).then(() => {
+                    adminRegisterForm.submit();
+                });
+            })
+            .catch(error => {
+                console.error('Error checking mobile number:', error);
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Network Error',
+                    text: 'Could not verify mobile number. Please try again.',
+                    confirmButtonColor: '#3182ce'
+                });
+            });
+        });
+    }
+
+    // ==========================================
     // 1. Add Candidate Form Validation (Dashboard)
     // ==========================================
     const addCandidateForm = document.getElementById('addCandidateForm');

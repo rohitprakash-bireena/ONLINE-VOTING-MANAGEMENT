@@ -164,13 +164,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            Swal.fire({
-                icon: 'success',
-                title: 'Submitting Registration...',
-                showConfirmButton: false,
-                timer: 900
-            }).then(() => {
-                voterRegisterForm.submit();
+            // Check mobile number uniqueness via AJAX
+            const formData = new FormData();
+            formData.append('mobile_number', mobileNumber);
+
+            fetch('/check-voter-mobile', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.available) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Mobile Number Exists',
+                        text: data.message,
+                        confirmButtonColor: '#c53030'
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Submitting Registration...',
+                    showConfirmButton: false,
+                    timer: 900
+                }).then(() => {
+                    voterRegisterForm.submit();
+                });
+            })
+            .catch(error => {
+                console.error('Error checking mobile number:', error);
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Mobile number already exists.',
+                    text: 'Could not verify mobile number. Please try again.',
+                    confirmButtonColor: '#3182ce'
+                });
             });
         });
     }

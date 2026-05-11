@@ -82,7 +82,14 @@ def protect_post_requests_with_csrf():
         return
 
     # Compatibility: keep auth entry points usable even if user submits a stale page.
-    csrf_exempt_endpoints = {'admin.admin_login', 'voter.voter_login', 'voter.voter_register'}
+    csrf_exempt_endpoints = {
+        'admin.admin_login', 
+        'voter.voter_login', 
+        'voter.voter_register',
+        'admin.admin_register',
+        'admin.check_mobile_availability',
+        'voter.check_voter_mobile_availability'
+    }
     if request.endpoint in csrf_exempt_endpoints:
         return
 

@@ -13,13 +13,21 @@ from security_utils import (
 
 admin_bp = Blueprint('admin', __name__)
 ALLOWED_LOGO_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'svg'}
+MOBILE_PATTERN = __import__('re').compile(r'^\d{10}$')
 
 
 def _is_allowed_logo(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_LOGO_EXTENSIONS
 
 
-def _ensure_candidate_logo_column(cursor):
+def _ensure_admin_mobile_column(cursor):
+    cursor.execute("SHOW COLUMNS FROM admin LIKE 'mobile_number'")
+    has_mobile = cursor.fetchone()
+    if not has_mobile:
+        cursor.execute("ALTER TABLE admin ADD COLUMN mobile_number VARCHAR(15) UNIQUE NULL")
+
+
+def _delete_logo_file(logo_path):
     cursor.execute("SHOW COLUMNS FROM candidates LIKE 'logo_path'")
     has_column = cursor.fetchone()
     if not has_column:
@@ -47,11 +55,14 @@ def admin_register():
 
     if request.method == 'POST':
         username = request.form['username'].strip()
+        mobile_number = request.form.get('mobile_number', '').strip()
         password = request.form['password']
         confirm_password = request.form.get('confirm_password', '')
 
         if len(username) < 3:
             error = 'Username must be at least 3 characters long.'
+        elif not MOBILE_PATTERN.fullmatch(mobile_number):
+            error = 'Mobile number must be 10 digits.'
         elif len(password) < 6:
             error = 'Password must be at least 6 characters long.'
         elif password != confirm_password:
@@ -60,24 +71,77 @@ def admin_register():
             conn = get_db_connection()
             if conn:
                 cursor = conn.cursor(dictionary=True)
-                cursor.execute("SELECT id FROM admin WHERE username = %s", (username,))
-                existing_admin = cursor.fetchone()
+                try:
+                    _ensure_admin_mobile_column(cursor)
+                    
+                    # Check if username already exists
+                    cursor.execute("SELECT id FROM admin WHERE username = %s", (username,))
+                    existing_admin = cursor.fetchone()
 
-                if existing_admin:
-                    error = 'This username is already registered.'
-                else:
-                    hashed_password = generate_password_hash(password)
-                    cursor.execute("INSERT INTO admin (username, password) VALUES (%s, %s)", (username, hashed_password))
-                    conn.commit()
-                    success = 'Admin registered successfully. Please login.'
+                    if existing_admin:
+                        error = 'This username is already registered.'
+                    else:
+                        # Check if mobile_number already exists in admin table
+                        cursor.execute("SELECT id FROM admin WHERE mobile_number = %s", (mobile_number,))
+                        existing_mobile_admin = cursor.fetchone()
 
-                cursor.close()
-                conn.close()
+                        if existing_mobile_admin:
+                            error = 'This mobile number is already registered as admin!'
+                        else:
+                            # Check if mobile_number already exists in voters table
+                            cursor.execute("SELECT id FROM voters WHERE mobile_number = %s", (mobile_number,))
+                            existing_mobile_voter = cursor.fetchone()
+
+                            if existing_mobile_voter:
+                                error = 'This mobile number is already registered as voter!'
+                            else:
+                                hashed_password = generate_password_hash(password)
+                                cursor.execute("INSERT INTO admin (username, mobile_number, password) VALUES (%s, %s, %s)", 
+                                             (username, mobile_number, hashed_password))
+                                conn.commit()
+                                success = 'Admin registered successfully. Please login.'
+                finally:
+                    cursor.close()
+                    conn.close()
 
             if success:
                 return redirect(url_for('admin.admin_login', registered='1'))
 
     return render_template('admin-register.html', error=error, success=success)
+
+
+# --- Check Mobile Number Availability (AJAX) ---
+@admin_bp.route('/check-mobile', methods=['POST'])
+def check_mobile_availability():
+    from flask import jsonify
+    mobile_number = request.form.get('mobile_number', '').strip()
+    
+    if not MOBILE_PATTERN.fullmatch(mobile_number):
+        return jsonify({'available': False, 'message': 'Invalid mobile number format'})
+    
+    conn = get_db_connection()
+    if conn:
+        cursor = conn.cursor(dictionary=True)
+        try:
+            # Ensure column exists first
+            _ensure_admin_mobile_column(cursor)
+            
+            # Check in admin table
+            cursor.execute("SELECT id FROM admin WHERE mobile_number = %s", (mobile_number,))
+            if cursor.fetchone():
+                return jsonify({'available': False, 'message': 'Already registered as admin'})
+            
+            # Check in voters table
+            cursor.execute("SELECT id FROM voters WHERE mobile_number = %s", (mobile_number,))
+            if cursor.fetchone():
+                return jsonify({'available': False, 'message': 'Already registered as voter'})
+            
+            return jsonify({'available': True, 'message': 'Mobile number is available'})
+        finally:
+            cursor.close()
+            conn.close()
+    
+    return jsonify({'available': False, 'message': 'Database error'})
 
 # --- Admin Login Route ---
 @admin_bp.route('/admin-login', methods=['GET', 'POST'])
